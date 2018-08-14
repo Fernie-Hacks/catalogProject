@@ -33,7 +33,7 @@ Windows users: The Installer may ask you to grant network permissions to Vagrant
 Bringing up the database server
 Vagrant takes a configuration file called Vagrantfile that tells it how to start your Linux VM. All vagrant files for this project can be found in the vagrant folder of this repo [vagrant](vagrant). Once you have a copy of this in your machine go to that directory, and run the command ```$ vagrant up```. Once completed you should see something like this:
 
-*Successful vagrant up results: "Done installing PostgreSQL database!"*
+*Successful vagrant up results: "Done installing your virtual machine!"*
 
 Now you have a PostgreSQL server running in a Linux virtual machine. This setup is independent of any other database or web services you might have running on your computer, for instance for other projects you might work on. The VM is linked to the directory where you ran vagrant up.
 
@@ -46,3 +46,6 @@ In this shell, if you change directory to /vagrant and run *ls* there, you will 
 ### Logged in!
 If you are now looking at a shell prompt that starts with the word vagrant ex ```vagrant@vagrant:/vagrant$```, congratulations — you've gotten logged into your Linux VM.
 
+## Environment
+* Python  2.7.12
+* Postgresql 9.5.13
