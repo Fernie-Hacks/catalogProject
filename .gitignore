@@ -16,3 +16,7 @@ Thumbs.db
 #######################
 catalog/.pydevproject
 catalog/.project
+
+# VM generated files #
+######################
+.vagrant
