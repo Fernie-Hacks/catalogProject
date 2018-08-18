@@ -1,0 +1,145 @@
+.header-grid {
+	display: flex;
+	margin: 3% 10% 0% 10%;
+	border-bottom: .3vw solid #7d97ad;
+	text-align: center;
+}
+
+.header-grid .title-col {
+	flex: 1;
+}
+
+#title {
+	color: #2d3c49;
+	font-family: 'Rajdhani';
+	font-size: 5.2vw;
+	float: center;
+}
+
+.article-grid {
+	display: flex;
+	margin: 3% 10% 2% 10%;
+}
+
+.article-grid .restaurant-col {
+	flex: 1;
+}
+
+.restaurant{
+	border: .1vw solid #ae9f65;
+	background-color: #000000;
+	border-radius: .5vw;
+}
+
+.menu{
+	text-align: center;
+	font-family: 'Rajdhani';
+}
+
+.edit {
+    background-color: #4CAF50;
+    color: white;
+    padding: 1vw 2vw;
+    text-align: center;
+    font-size: 1.5vw;
+    margin: 1vw 0;
+    border: none;
+    border-radius: .5vw;
+    text-decoration: none;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.edit:hover {
+    background-color: #3f9144;
+}
+
+
+.delete {
+    background-color: #fd0002;
+    color: white;
+    padding: 1vw 1.3vw;
+    text-align: center;
+    font-size: 1.5vw;
+    margin: 1vw 0;
+    border: none;
+    border-radius: .5vw;
+    text-decoration: none;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.delete:hover {
+    background-color: #ab0103;
+}
+
+.menuButton {
+    background-color: #6ec0fd;
+    color: white;
+    padding: 1vw 1.3vw;
+    text-align: center;
+    font-size: 1.5vw;
+    margin: 1vw 0;
+    border: none;
+    border-radius: .5vw;
+    text-decoration: none;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.menuButton:hover {
+    background-color: #5594c5;
+}
+
+.section-grid {
+	display: flex;
+	margin: 3% 10% 0% 10%;
+}
+
+.section-grid .section-col {
+	flex: 1;
+}
+
+p {
+	font-size: 3.3vw;
+	font-family: 'Rajdhani', sans-serif;
+	text-align: center;
+}
+
+.newRestaurant {
+    background-color: #6ec0fd;
+    color: white;
+    padding: 1vw 1.3vw;
+    text-align: center;
+    font-size: 1.5vw;
+    margin: 1vw 0;
+    border: none;
+    border-radius: .5vw;
+    text-decoration: none;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.newRestaurant:hover {
+    background-color: #5594c5;
+}
+
+.footer-grid {
+	display: flex;
+	margin: 0% 10% 0% 10%;
+}
+
+.footer-grid .footer-col {
+	flex: 1;
+}
+
+footer {
+	font-size: 2vw;
+	font-family: 'Rajdhani', sans-serif;
+	text-align: center;
+}
+
