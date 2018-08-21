@@ -49,3 +49,5 @@ If you are now looking at a shell prompt that starts with the word vagrant ex ``
 ## Environment
 * Python  2.7.12
 * Postgresql 9.5.13
+* Bootstrap 3.3.7
+

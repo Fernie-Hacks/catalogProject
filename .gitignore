@@ -20,3 +20,9 @@ catalog/.project
 # VM generated files #
 ######################
 .vagrant
+
+# Python/DB generated files #
+#############################
+catalog/catalog.db
+catalog/models.pyc
+
