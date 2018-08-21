@@ -2,7 +2,10 @@
 	display: flex;
 	margin: 3% 10% 0% 10%;
 	border-bottom: .3vw solid #7d97ad;
-	text-align: center;
+    text-align: center;
+    
+
+    
 }
 
 .header-grid .title-col {
