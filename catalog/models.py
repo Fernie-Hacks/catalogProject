@@ -7,6 +7,8 @@ import random, string
 from passlib.apps import custom_app_context as pwd_context
 # Cryptographically signed message keeps user info, for token based authentication 
 from itsdangerous import(TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
+from sqlalchemy.sql.schema import ForeignKey
+from sqlalchemy.orm.relationships import foreign
 
 Base = declarative_base()
 # Secret key used to serialize and decrypt password
@@ -14,6 +16,7 @@ secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x
 
 class User(Base):
     __tablename__ = 'user'
+    
     id = Column(Integer, primary_key=True)
     username = Column(String(32), index=True)
     picture = Column(String)
@@ -57,7 +60,42 @@ class User(Base):
             return None
         user_id = data['id']
         return user_id
-        
+    
+class Catalog(Base):
+    __tablename__ = 'catalog'
+   
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False)
+    
+    @property
+    def serialize(self):
+        # Return Category details in a easy serialized way, to be used for JSON response.
+        return {
+            'name'      : self.name,
+            'id'        : self.id   
+        }
+
+class Item(Base):
+    __tablename__ = 'item'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False)
+    description = Column(String(250))
+    cat_id = Column(Integer, ForeignKey('catalog.id'))
+    catalog = relationship(Catalog)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
+    
+    @property
+    def serialize(self):
+        # Return item's details in a easy serialized way, to be used for JSON response.
+        return {
+            'cat_id'        : self.cat_id,
+            'description'   : self.description,
+            'id'            : self.id,
+            'item'          : self.name
+        }
+    
 # Creates an engine which will use a Dialect and a Pool to interpret a specific
 # DB's API in our case we are creating an object tailored to SQLite        
 engine = create_engine('sqlite:///catalog.db')
@@ -66,3 +104,6 @@ engine = create_engine('sqlite:///catalog.db')
 # Create_all is a function to create a new DB given the metadata that describes such DB(s)
 # *** It issues CREATE statements only if tables do not already exist
 Base.metadata.create_all(engine)
+
+# Add the Categories to the DB 
+# Project specifications did not provide details on user's ability to create/edit/delete categories
