@@ -61,8 +61,8 @@ class User(Base):
         user_id = data['id']
         return user_id
     
-class Catalog(Base):
-    __tablename__ = 'catalog'
+class Category(Base):
+    __tablename__ = 'category'
    
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
@@ -81,8 +81,8 @@ class Item(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     description = Column(String(250))
-    cat_id = Column(Integer, ForeignKey('catalog.id'))
-    catalog = relationship(Catalog)
+    cat_id = Column(Integer, ForeignKey('category.id'))
+    category = relationship(Category)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
     
@@ -107,3 +107,42 @@ Base.metadata.create_all(engine)
 
 # Add the Categories to the DB 
 # Project specifications did not provide details on user's ability to create/edit/delete categories
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
+
+Soccer = Category(name = "Soccer")
+session.add(Soccer)
+session.commit()
+
+Basketball = Category(name = "Basketball")
+session.add(Basketball)
+session.commit()
+
+Baseball = Category(name = "Baseball")
+session.add(Baseball)
+session.commit()
+
+Frisbee = Category(name = "Frisbee")
+session.add(Frisbee)
+session.commit()
+
+Snowboarding = Category(name = "Snowboarding")
+session.add(Snowboarding)
+session.commit()
+
+Rock_Climbing = Category(name = "Rock Climbing")
+session.add(Rock_Climbing)
+session.commit()
+
+Foosball = Category(name = "Foosball")
+session.add(Foosball)
+session.commit()
+
+Skating = Category(name = "Skating")
+session.add(Skating)
+session.commit()
+
+Hockey = Category(name = "Hockey")
+session.add(Hockey)
+session.commit()
+

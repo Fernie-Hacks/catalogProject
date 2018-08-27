@@ -1,4 +1,4 @@
-from models import Base, User
+from models import Base, User, Category, Item
 from flask import Flask, jsonify, request, url_for, g, render_template #, abort
 from flask_bootstrap import Bootstrap
 #from sqlalchemy.ext.declarative import declarative_base
@@ -6,7 +6,9 @@ from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
 
 from flask_httpauth import HTTPBasicAuth
+from flask import session as login_session
 import json
+from werkzeug.utils import redirect
 
 auth = HTTPBasicAuth()
 
@@ -27,7 +29,46 @@ CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_i
 @app.route('/')
 @app.route("/test", methods = ['GET', 'POST'])
 def index():
-    return render_template('test.html')
+    categories = session.query(Category).order_by(Category.id).all()
+    items = session.query(Item).order_by(Item.id.desc()).limit(9).all()
+    if 'username' not in login_session:
+        return render_template('test.html', categories = categories, items = items)
+    else:
+        return render_template('index.html', categories = categories, items = items)
+
+@app.route("/<string:category_name>/items")
+def showCategoryItems(category_name):
+    category = session.query(Category).filter_by(name = category_name).one()
+    categories = session.query(Category).order_by(Category.id).all()
+    items = session.query(Item).filter_by(cat_id = category.id).all()
+    return render_template('showCategoryItems.html', categories = categories, items = items)
+
+@app.route("/<string:category_name>/<string:item_name>")
+def showItemDescription(category_name, item_name):
+    category = session.query(Category).filter_by(name = category_name).one()
+    item = session.query(Item).filter_by(cat_id = category.id).all().filter_by(name = item_name).one()
+    return render_template('showItemDescription.html', item = item)
+
+@app.route("/<string:category_name>/new", methods=['GET','POST'])
+def newItem(category_name):
+    if 'username' not in login_session:
+        return redirect('/')
+    else:
+        pass
+
+@app.route("/<string:category_name>/<string:item_name>/edit", methods=['GET','POST'])
+def editItem(category_name, item_name):
+    if 'username' not in login_session:
+        return redirect('/')
+    else:
+        pass
+    
+@app.route("/<string:category_name>/<string:item_name>/delete", methods=['GET','POST'])
+def deleteItem(category_name, item_name):
+    if 'username' not in login_session:
+        return redirect('/')
+    else:
+        pass
 
 # In order to be able to distinguish this when running as the main program ex 'python views.py'
 # *** When using this method python will set __name__ to have a value of '__main__' by default
