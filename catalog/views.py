@@ -1,5 +1,5 @@
 from models import Base, User, Category, Item
-from flask import Flask, jsonify, request, url_for, g, render_template #, abort
+from flask import Flask, jsonify, request, url_for, g, render_template, abort, flash
 from flask_bootstrap import Bootstrap
 #from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -9,6 +9,7 @@ from flask_httpauth import HTTPBasicAuth
 from flask import session as login_session
 import json
 from werkzeug.utils import redirect
+from posix import abort
 
 auth = HTTPBasicAuth()
 
@@ -27,7 +28,6 @@ Bootstrap(app)
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 
 @app.route('/')
-@app.route("/test", methods = ['GET', 'POST'])
 def index():
     categories = session.query(Category).order_by(Category.id).all()
     items = session.query(Item).order_by(Item.id.desc()).limit(9).all()
@@ -35,6 +35,25 @@ def index():
         return render_template('test.html', categories = categories, items = items)
     else:
         return render_template('index.html', categories = categories, items = items)
+    
+@app.route('/SignUpUser', methods=['POST'])
+def newUser():
+    # Create a new user via username / password instead of incorporating a provider
+    username = request.json.get('username')
+    password = request.json.get('password')
+    if username is None or password is None:
+        # Missing information in order to create user <import  abourt>?
+        abort(400) 
+        flash('Password or username missing!')
+        return redirect('/login')
+    user = User(name = username)
+    user.hash_password(password)
+    session.add(user)
+    session.commit()
+ 
+@app.route('/login')    
+def login():
+    return render_template('login.html')
 
 @app.route("/<string:category_name>/items")
 def showCategoryItems(category_name):

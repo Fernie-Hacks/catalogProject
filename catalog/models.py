@@ -21,6 +21,7 @@ class User(Base):
     username = Column(String(32), index=True)
     picture = Column(String)
     email = Column(String)
+    
     # Keep Password Hash in DB only avoid security issues if DB is compromised
     # The hash is an algorithm that can map digital data of arbitrary size to digital data of fixed sized
     password_hash = Column(String(64)) 
