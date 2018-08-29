@@ -20,7 +20,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(32), index=True)
     picture = Column(String)
-    email = Column(String)
+    email = Column(String, index=True)
     
     # Keep Password Hash in DB only avoid security issues if DB is compromised
     # The hash is an algorithm that can map digital data of arbitrary size to digital data of fixed sized
@@ -46,7 +46,7 @@ class User(Base):
     
     # Static Function to determine user
     # Takes token uses the load function of itsdangerous to retrieve user
-    # *** Reverse of dumps this retrives the id dictionary object 
+    # *** Reverse of dumps this retrieves the id dictionary object 
     # Needs to be static since we do not know user until token is decoded
     @staticmethod
     def verify_auth_token(token):

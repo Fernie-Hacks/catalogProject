@@ -1,5 +1,5 @@
 from models import Base, User, Category, Item
-from flask import Flask, jsonify, request, url_for, g, render_template, abort, flash
+from flask import Flask, jsonify, request, url_for, g, render_template, abort, flash, redirect
 from flask_bootstrap import Bootstrap
 #from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -8,8 +8,11 @@ from sqlalchemy import create_engine
 from flask_httpauth import HTTPBasicAuth
 from flask import session as login_session
 import json
-from werkzeug.utils import redirect
-from posix import abort
+from flask.helpers import make_response
+
+# Import needed to connect with Google as a provifer
+from oauth2client.client import flow_from_clientsecrets # Contains OAuth parameter
+from oauth2client.client import FlowExchangeError # To Catch errors during exchanges
 
 auth = HTTPBasicAuth()
 
@@ -25,7 +28,28 @@ app = Flask(__name__)
 #Pass flask application to bootstrap
 Bootstrap(app)
 
+# GOOGLE OAuth Application Client ID
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
+
+# Function used every time prior to executing another function in this project which has @auth.login_required tag. 
+@auth.verify_password
+def verify_password(username_or_token, password):
+    user_id = User.verify_auth_token(username_or_token)
+    # Check if user is using token based authentication
+    if user_id:
+        user = session.query(User). filter_by(id = user_id).one()
+    else: 
+        user = session.query(User).filter_by(username = username_or_token).first()
+        if not user or not user.verify_password(password):
+            return False
+    g.user = user
+    return True
+
+@app.route('/token')
+@auth.login_required
+def get_auth_token():
+    token = g.user.generate_auth_token()
+    return jsonify({'token': token.decode('ascii')})
 
 @app.route('/')
 def index():
@@ -54,6 +78,23 @@ def newUser():
 @app.route('/login')    
 def login():
     return render_template('login.html')
+
+@app.route('/oauth/<provider>', methods = ['POST'])
+def providerLogin(provider):
+    if provider == 'google':
+        # STEP 1 - Parse the auth code
+        auth_code = request.json.get('auth_code')
+        # STEP 2 Exchange for a token
+        try:
+            # Upgrade the authorization code into a credentials object
+            oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+            oauth_flow.redirect_uri = 'postmessage'
+            credentials = oauth_flow.step2_exchange(auth_code)
+        except FlowExchangeError:
+            response = make_response(json.dumps('Failed to upgrade the authorization code'), 401)
+            response.headers['Content-Type'] = 'application/json'
+            return response
+            
 
 @app.route("/<string:category_name>/items")
 def showCategoryItems(category_name):
