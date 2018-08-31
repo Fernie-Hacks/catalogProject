@@ -13,6 +13,7 @@ from flask.helpers import make_response
 # Import needed to connect with Google as a provifer
 from oauth2client.client import flow_from_clientsecrets # Contains OAuth parameter
 from oauth2client.client import FlowExchangeError # To Catch errors during exchanges
+import httplib2
 
 auth = HTTPBasicAuth()
 
@@ -94,7 +95,34 @@ def providerLogin(provider):
             response = make_response(json.dumps('Failed to upgrade the authorization code'), 401)
             response.headers['Content-Type'] = 'application/json'
             return response
+        
+        # STEP 3 -- fIND user or make a new one
+        # Get user info
+        h = httplib2.Http()
+        userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+        params = {'access_token': credentials.access_token, 'alt':'json'}
+        answer = request.get(userinfo_url, params=params)
+        
+        data = answer.json()
+        
+        name = data['name']
+        picture = data['picture']
+        email = data['email']
+        
+        # Check if user already exists, if it doesn't make a new one
+        user = session.query(User).filter_by(email=email).first()
+        if not user:
+            user = User(username = name, picture = picture, email = email)
+            session.add(user)
+            session.commit()
             
+        # STEP 4 - Create the Token
+        token = user.generate_auth_token(600)
+            
+        # STEP 5 - Send back the token o the client
+        return jsonify({'token': token.decode('ascii')})
+    else:
+        return 'Unrecognized Provider'
 
 @app.route("/<string:category_name>/items")
 def showCategoryItems(category_name):
