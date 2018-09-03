@@ -26,3 +26,7 @@ catalog/.project
 catalog/catalog.db
 catalog/models.pyc
 
+# App files which should no longer be pushed #
+##############################################
+catalog/templates/login.html
+
