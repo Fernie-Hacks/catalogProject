@@ -10,10 +10,12 @@ from flask import session as login_session
 import json
 from flask.helpers import make_response
 
-# Import needed to connect with Google as a provifer
+# Import needed to create flow objects, and exceptions 
 from oauth2client.client import flow_from_clientsecrets # Contains OAuth parameter
 from oauth2client.client import FlowExchangeError # To Catch errors during exchanges
 import httplib2
+
+app = Flask(__name__)
 
 auth = HTTPBasicAuth()
 
@@ -23,9 +25,8 @@ engine = create_engine('sqlite:///catalog.db', connect_args={'check_same_thread'
 # This allows SQL statements access to execute method and all other SQL constructs.
 Base.metadata.bind = engine
 # Create a reference to the sessionmaker class.
-DBSession = sessionmaker
+DBSession = sessionmaker(bind=engine)
 session = DBSession()
-app = Flask(__name__)
 #Pass flask application to bootstrap
 Bootstrap(app)
 
@@ -55,11 +56,11 @@ def get_auth_token():
 @app.route('/')
 def index():
     categories = session.query(Category).order_by(Category.id).all()
-    items = session.query(Item).order_by(Item.id.desc()).limit(9).all()
+    items = session.query(Item).order_by(Item.id.desc()).limit(9).all()        
     if 'username' not in login_session:
-        return render_template('test.html', categories = categories, items = items)
-    else:
         return render_template('index.html', categories = categories, items = items)
+    else:
+        return render_template('indexLoggedOn.html', categories = categories, items = items)
     
 @app.route('/SignUpUser', methods=['POST'])
 def newUser():
@@ -77,7 +78,7 @@ def newUser():
     session.commit()
  
 @app.route('/login')    
-def login():
+def showLogin():
     return render_template('login.html')
 
 @app.route('/oauth/<provider>', methods = ['POST'])

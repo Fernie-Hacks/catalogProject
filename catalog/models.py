@@ -9,6 +9,7 @@ from passlib.apps import custom_app_context as pwd_context
 from itsdangerous import(TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.orm.relationships import foreign
+from sqlalchemy.sql.expression import exists
 
 Base = declarative_base()
 # Secret key used to serialize and decrypt password
@@ -66,7 +67,7 @@ class Category(Base):
     __tablename__ = 'category'
    
     id = Column(Integer, primary_key=True)
-    name = Column(String(50), nullable=False)
+    name = Column(String(50), nullable=False, index=True, unique=True)
     
     @property
     def serialize(self):
@@ -111,39 +112,14 @@ Base.metadata.create_all(engine)
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-Soccer = Category(name = "Soccer")
-session.add(Soccer)
-session.commit()
+categoryNames = ["Soccer", "Basketball", "Baseball", "Frisbee", "Snowboarding", 
+                 "Rock Climbing", "Foosball", "Skating", "Hockey" ]
 
-Basketball = Category(name = "Basketball")
-session.add(Basketball)
-session.commit()
-
-Baseball = Category(name = "Baseball")
-session.add(Baseball)
-session.commit()
-
-Frisbee = Category(name = "Frisbee")
-session.add(Frisbee)
-session.commit()
-
-Snowboarding = Category(name = "Snowboarding")
-session.add(Snowboarding)
-session.commit()
-
-Rock_Climbing = Category(name = "Rock Climbing")
-session.add(Rock_Climbing)
-session.commit()
-
-Foosball = Category(name = "Foosball")
-session.add(Foosball)
-session.commit()
-
-Skating = Category(name = "Skating")
-session.add(Skating)
-session.commit()
-
-Hockey = Category(name = "Hockey")
-session.add(Hockey)
-session.commit()
+for c in categoryNames:
+    category = Category(name=c)
+    # Check if category name is already present 
+    isExistent = session.query(exists().where(Category.name == c)).scalar()
+    if not isExistent:
+        session.add(category)
+        session.commit()  
 

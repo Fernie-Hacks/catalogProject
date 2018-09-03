@@ -1,0 +1,177 @@
+{% extends "bootstrap/base.html" %}
+
+{% block html_attribs %} lang="en"{% endblock %}
+
+{% block head %}
+    <meta charset="UTF-8">
+    <title>Catalog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Rajdhani" rel="stylesheet">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='index.css') }}">
+{{super()}}
+{% endblock %}
+
+{% block body %}
+{% block navbar %}
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">
+            <img alt="Brand" src="{{ url_for('static', filename='favicon.ico') }}">
+          </a>
+          <a class="navbar-brand navbar-center" href="#">
+            <span class="label label-default">Catalog App</span>
+          </a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+          <li class="login">
+          	<button type="button" class="btn btn-danger navbar-btn">Log in</button>
+          	<!-- Modification <a class="login" href="#">
+          		<button type="button" class="btn btn-danger navbar-btn">Log in</button>
+            </a> -->
+          </li>
+        </ul>
+      </div><!-- /.container-fluid -->
+    </nav>
+{% endblock %}
+
+
+{% endblock %}
+
+
+
+
+<!-- Original index.html -->
+<!--
+{% extends "bootstrap/base.html" %}
+{% block doc %}
+{{super()}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<head>
+	<meta charset="UTF-8">
+	<title>Catalog</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://fonts.googleapis.com/css?family=Rajdhani" rel="stylesheet">
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='index.css') }}">
+</head>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Navbar</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Dropdown
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#">Disabled</a>
+      </li>
+    </ul>
+    <form class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+  </div>
+</nav>
+
+
+
+<body>
+	<header>
+		<div class="header-grid">
+			<div class="title-col">
+				<span id="title">Catalog</span>
+			</div>
+		</div>
+	</header>
+	
+	<main>	
+		<article>
+			<div class="article-grid">
+				<div class="restaurant-col">
+					<div class = "restaurant">
+						<p> List of Items
+							<br>
+							<a href="#" class="edit">Edit </a>
+							&nbsp;
+							<a href="#" class = "delete"> Delete</a>
+							<div class="menu">
+								<a href="#" class = "menuButton">Show Restaurant's Menu</a>
+							</div>
+						</p>	
+					</div>
+					<br>
+				</div>
+			</div>
+		</article>
+		
+		<section class="section-grid">
+			<div class="section-col">
+				<p>
+					<a href = "#" class="newRestaurant"> Create New Restaurant</a>
+				</p>
+			</div>
+		</section>
+	</main>
+	<footer>
+		<div class="footer-grid">
+			<div class="footer-col">
+				<small>Fernando Gonzalez </small>
+				<small>| Email:
+					<a href="mailto:fgonz009@ucr.edu">fgonz009@ucr.edu</a>
+				</small>
+			</div>
+		</div>
+	</footer>
+</body>
+</html>
+{% endblock %}
+
+					<!--MESSAGE FLASHING EXAMPLE 
+					{% with messages = get_flashed_messages() %}
+					{% if messages %}
+						<ul>
+							{% for message in messages %}
+								<li><strong>{{message}}</strong></li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+					{% endwith %}
+					{% for restaurant in restaurants %} 
+						<div class = "restaurant">
+							List of Items
+								<br>
+								 <a href="{{ url_for('editRestaurant', restaurant_id = 
+								restaurant.id)}}" class="edit">Edit </a>
+								<a href="#" class="edit">Edit </a>
+								&nbsp;
+								<a href="#" class = "delete"> Delete</a>
+								<div class="menu">
+									<a href="#" class = "menuButton">Show Restaurant's Menu</a>
+								</div>
+							
+						</div>
+						<br>
+					{% endfor %} -->
+
