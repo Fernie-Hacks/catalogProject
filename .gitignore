@@ -1,6 +1,10 @@
-# Google App files #
+# Google App file #
 ####################
 catalog/client_secrets.json
+
+# Facebook App file #
+#####################
+catalog/fb_client_secrets.json
 
 # OS generated files #
 ######################
@@ -17,7 +21,7 @@ Thumbs.db
 catalog/.pydevproject
 catalog/.project
 
-# VM generated files #
+# VM generated file #
 ######################
 .vagrant
 

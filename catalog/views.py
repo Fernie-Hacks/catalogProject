@@ -71,7 +71,7 @@ def newUser():
         # Missing information in order to create user <import  abourt>?
         abort(400) 
         flash('Password or username missing!')
-        return redirect('/login')
+        return redirect('/SignUpUser')
     user = User(name = username)
     user.hash_password(password)
     session.add(user)
