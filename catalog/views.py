@@ -6,14 +6,21 @@ from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
 
 from flask_httpauth import HTTPBasicAuth
+
+# Renamed the import to login_session
+# This import functions as a dictionary  which can store values for the longevity
+# of a user's session. 
 from flask import session as login_session
 import json
-from flask.helpers import make_response
+import string, random
+import requests
+from flask import make_response
 
-# Import needed to create flow objects, and exceptions 
+# Import needed to create flow objects, and exceptions to handle the response from providers  
 from oauth2client.client import flow_from_clientsecrets # Contains OAuth parameter
 from oauth2client.client import FlowExchangeError # To Catch errors during exchanges
 import httplib2
+from flask.helpers import make_response
 
 app = Flask(__name__)
 
@@ -39,13 +46,28 @@ def verify_password(username_or_token, password):
     user_id = User.verify_auth_token(username_or_token)
     # Check if user is using token based authentication
     if user_id:
-        user = session.query(User). filter_by(id = user_id).one()
+        user = session.query(User).filter_by(id = user_id).one()
     else: 
         user = session.query(User).filter_by(username = username_or_token).first()
         if not user or not user.verify_password(password):
             return False
     g.user = user
     return True
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email = email).one()
+        return user.id
+    except:
+        return None
+    
+def createUser(login_session):
+    newUser = User(username = login_session['username'], email = 
+                   login_session['email'], picture = login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email = login_session['email']).one()
+    return user.id
 
 @app.route('/token')
 @auth.login_required
@@ -79,51 +101,106 @@ def newUser():
  
 @app.route('/login')    
 def showLogin():
-    return render_template('login.html')
+    # Create 'state' token to protect against anti-forgery attacks 
+    state = "".join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in range(32))
+    # Populate state with the unique token, to late verify against a requests
+    login_session['state'] = state
+    return render_template('login.html', STATE=state)
 
-@app.route('/oauth/<provider>', methods = ['POST'])
-def providerLogin(provider):
-    if provider == 'google':
-        # STEP 1 - Parse the auth code
-        auth_code = request.json.get('auth_code')
-        # STEP 2 Exchange for a token
-        try:
-            # Upgrade the authorization code into a credentials object
-            oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
-            oauth_flow.redirect_uri = 'postmessage'
-            credentials = oauth_flow.step2_exchange(auth_code)
-        except FlowExchangeError:
-            response = make_response(json.dumps('Failed to upgrade the authorization code'), 401)
-            response.headers['Content-Type'] = 'application/json'
-            return response
+@app.route('/gconnect/oauth', methods = ['POST'])
+def gconnect():
+    # STEP 1 - Validate state token
+    if request.args.get('state') != login_session['state']:
+        # Making sure requests are being made by the user
+        response = make_response(json.dumps('Invalid state parameter.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    
+    # STEP 2 - Parse the auth code
+    auth_code = request.data
+    # STEP 3 Exchange for a token
+    try:
+        # Upgrade the authorization code into a credentials oauth object
+        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+        # Specifies with 'postmessage' that this is the one time code my server will be sending (as per sign in div)
+        oauth_flow.redirect_uri = 'postmessage'
+        credentials = oauth_flow.step2_exchange(auth_code)
+    except FlowExchangeError:
+        response = make_response(json.dumps('Failed to upgrade the authorization code'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    
+    # STEP 4 - Check that the access token is valid
+    access_token = credentials.access_token 
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
+    h = httplib2.Http()
+    result = json.loads(h.request(url, 'GET')[1])
+    
+    # STEP 5 - If there was an error in the access token return a 500 error
+    if result.get('error') is not None:
+        response = make_response(json.dumps(result.get('error')), 500)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    
+    # STEP 6 - Verify the access token is used for the intended user
+    gplus_id = credentials.id_token['sub'] # Sub is obtained from the Google resource openid 
+    if result['user_id'] != gplus_id:
+        response = make_response(
+            json.dumps("Token's user Id doesn't match given user ID."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    
+    # Step 7 - Verify that the access token is valid for this APP.
+    if result['issued_to'] != CLIENT_ID:
+        response = make_response(
+            json.dumps("Token's client ID does not match App's."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    
+    stored_access_token = login_session.get('access_token')
+    stored_gplus_id = login_session.get('gplus_id')
+    
+    # Step 8 - Check if user is already logged in (Can remove later)
+    if stored_access_token is None and gplus_id == stored_gplus_id:
+        response = make_response(
+            json.dumps("Current user is already connected."), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    
+    # Store the access token in the session for late use
+    login_session['access_token'] = credentials.access_token
+    login_session['gplus_id'] = stored_gplus_id
+    
+    # Get user's info
+    userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+    params = {'access_token': credentials.access_token, 'alt': 'json'}
+    answer = requests.get(userinfo_url, params=params)
+    
+    data = answer.json()
+    
+    login_session['provider'] = 'google'
+    login_session['username'] = data['name']
+    login_session['picture'] = data['picture']
+    login_session['email'] = data['email']
+    
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
         
-        # STEP 3 -- fIND user or make a new one
-        # Get user info
-        h = httplib2.Http()
-        userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
-        params = {'access_token': credentials.access_token, 'alt':'json'}
-        answer = request.get(userinfo_url, params=params)
+    login_session['user_id'] = user_id
         
-        data = answer.json()
-        
-        name = data['name']
-        picture = data['picture']
-        email = data['email']
-        
-        # Check if user already exists, if it doesn't make a new one
-        user = session.query(User).filter_by(email=email).first()
-        if not user:
-            user = User(username = name, picture = picture, email = email)
-            session.add(user)
-            session.commit()
-            
-        # STEP 4 - Create the Token
-        token = user.generate_auth_token(600)
-            
-        # STEP 5 - Send back the token o the client
-        return jsonify({'token': token.decode('ascii')})
-    else:
-        return 'Unrecognized Provider'
+    output = ''    
+    output += '<h1> Welcome, '
+    output += login_session['username']
+    output += '!</h1>'
+    
+    flash("You are now logged in as %s" % login_session['username'])
+    
+    
+    # STEP 9 - Send back the token o the client
+    return output
+    
 
 @app.route("/<string:category_name>/items")
 def showCategoryItems(category_name):
@@ -164,5 +241,6 @@ def deleteItem(category_name, item_name):
 # Or when someone import this module and uses functions form here, when using the this option
 # *** Python interpreter sets the __name__ variable to the module name instead of main  
 if __name__ == '__main__':
+    app.secret_key = 'secret_key_for_github'
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
