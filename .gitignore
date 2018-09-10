@@ -34,3 +34,6 @@ catalog/models.pyc
 ##############################################
 catalog/templates/login.html
 
+# App hidden files #
+####################
+hidden/*
