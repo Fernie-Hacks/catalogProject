@@ -3,34 +3,39 @@
 {% block html_attribs %} lang="en"{% endblock %}
 
 {% block head %}
+{{super()}}
     <meta charset="UTF-8">
     <title>Catalog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css?family=Rajdhani" rel="stylesheet">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='index.css') }}">
-{{super()}}
 {% endblock %}
 
+{% block body %}
 {% block navbar %}
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-          <a class="navbar-brand" href="#">
-            <img alt="Brand" src="{{ url_for('static', filename='favicon.ico') }}">
-          </a>
           <a class="navbar-brand navbar-center" href="#">
             <span class="label label-default">Catalog App</span>
           </a>
         </div>
-        <ul class="nav navbar-nav navbar-right">
-          <li class="login">
-          	<button href="{{url_for('showLogin')}}" type="button" class="btn btn-danger navbar-btn">Log in</button>
-          	<!-- Modification <a class="login" href="#">
-          		<button type="button" class="btn btn-danger navbar-btn">Log in</button>
-            </a> -->
-          </li>
-        </ul>
+        <div class="nav navbar-nav navbar-right " >
+        	<a href="{{url_for('disconnect')}}"> 
+        		<button type="button" class="btn btn-danger navbar-btn">Logout</button>
+        	</a>
+        </div>
       </div><!-- /.container-fluid -->
     </nav>
+{% endblock %}
+
+	<article>
+		<div class="article-grid">
+			<div class="article-col">
+				<span id="label">{{item.name}}</span>
+			</div>		
+		</div>
+	</article>
+
 {% endblock %}

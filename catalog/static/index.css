@@ -17,6 +17,12 @@ html body {
 	flex: 1;
 }
 
+.flash {
+	color: #00ff0a;
+	margin: 0% 10% 0% 10%;
+	text-shadow: .1vw .1vw #000000;
+}
+
 .article-grid {
 	display: flex;
 	margin: 5% 10% 5% 10%;
@@ -24,14 +30,67 @@ html body {
 	padding: 2%;
 }
 
+
 .article-grid .article-col {
 	flex: 1;
+}
+
+.divider {
+  width: 0.1vw;
+  background: #a7aaaf;
+  margin-left: -40%;
+  margin-top: 2%;
+  margin-botton: 2%;
+}
+
+.item-col {
+	margin-left: 7%;
+}
+
+.newItem-grid {
+	margin: 5% 10% 5% 10%;
+	background-color: #FFFFFF;
+}
+
+.grid-format {
+	margin: 5% 3% 5% 3%;
 }
 
 #label {
 	color: #0d2569;
 	font-family: 'Rajdhani';
-	font-size: 2vw;
+	font-size: 2.8vw;
 	font-weight: 1000;
 	text-shadow: .1vw .1vw #d4e0f3;
+}
+
+#new-item-label {
+	color: #0d2569;
+	font-family: 'Rajdhani';
+	font-size: 2.8vw;
+	font-weight: 1000;
+	text-shadow: .1vw .1vw #b0d6df;
+	text-align: center;
+}
+
+.list {
+	list-style-type: none;
+	font-family: 'Rajdhani';
+	font-size: 1.5vw;
+	font-weight: 800;
+	color: #ff7f11;
+	padding: 0% 0% 0% 2%;
+}
+
+.category {
+	list-style-type: none;
+	font-family: 'Rajdhani';
+	font-size: 1.3vw;
+	color: #7e817b;
+	text-align: center;
+}
+
+.btn-update{
+	margin-left: 33%;
+	margin-top: -2%;
 }

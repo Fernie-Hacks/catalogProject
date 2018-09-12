@@ -30,42 +30,12 @@
     </nav>
 {% endblock %}
 
-	<!-- To Get flash messages after logins and other activities. -->
-	<div class='flash'>
-		{% with messages = get_flashed_messages() %}
-		{% if messages %}
-		<ul>
-			{% for message in messages %}
-				<li> <strong> {{ message }} </strong> </li>
-			{% endfor %}
-        </ul>
-     	{% endif %}
-     	{% endwith %}
-	</div>
 	<article>
 		<div class="article-grid">
 			<div class="article-col">
-				<span id="label">Categories</span>
-				{% for c in categories %}
-					<a href="{{url_for('showCategoryItems', category_name=c.name)}}">
-						<p class="list"> {{c.name}} </p>
-					</a>
-				{% endfor %}
-			</div>
-			<div class="divider"></div>
-			<div class="article-col item-col">
-				<span id="label">Latest Items</span>  
-				<a href="{{url_for('newItem')}}"> 
-        			<button type="button" class="btn btn-sm btn-success btn-update">Add Item</button>
-        		</a>	
-				{% for i in items %}
-					<a href="{{url_for('showItem', category_name=i.cat_name, item_name=i.name)}}">
-						<p class="list">{{i.name}} 
-							<span class="category"> ( {{i.cat_name}} )</span>
-						</p>
-					</a>
-				{% endfor %}
+				<span id="label">{{item.name}}</span>
 			</div>		
 		</div>
 	</article>
+	
 {% endblock %}

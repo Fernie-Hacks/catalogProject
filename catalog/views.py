@@ -3,7 +3,7 @@ from flask import Flask, jsonify, request, url_for, g, render_template, abort, f
 from flask_bootstrap import Bootstrap
 #from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, and_
 
 from flask_httpauth import HTTPBasicAuth
 
@@ -199,28 +199,88 @@ def gconnect():
     
     
     # STEP 9 - Send back the token o the client
-    return output
-    
+    return output    
+
+def gdisconnect():
+    # Only disconnect if user is already logged in.
+    access_token = login_session.get('access_token')
+    if access_token is None:
+        response = make_response(json.dumps('Current user not connected.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    if result['status'] == '200':
+        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    else:
+        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+def fbdisconnect():
+    pass
+
+@app.route('/disconnect')
+def disconnect():
+    if 'provider' in login_session:
+        if login_session['provider'] == 'google':
+            gdisconnect()
+            del login_session['gplus_id']
+            del login_session['access_token']
+        if login_session['provider'] == 'facebook':
+            fbdisconnect()
+            del login_session['facebook_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+        del login_session['user_id']
+        del login_session['provider']
+        flash("You have successfully been logged out.")
+        return redirect(url_for('index'))
+    else:
+        flash("You were not logged in")
+        return redirect(url_for('index'))    
 
 @app.route("/<string:category_name>/items")
 def showCategoryItems(category_name):
     category = session.query(Category).filter_by(name = category_name).one()
     categories = session.query(Category).order_by(Category.id).all()
     items = session.query(Item).filter_by(cat_id = category.id).all()
-    return render_template('showCategoryItems.html', categories = categories, items = items)
+    return render_template('showCategoryItems.html', categories = categories, items 
+                           = items, category_name = category_name )
 
 @app.route("/<string:category_name>/<string:item_name>")
-def showItemDescription(category_name, item_name):
+def showItem(category_name, item_name):
     category = session.query(Category).filter_by(name = category_name).one()
-    item = session.query(Item).filter_by(cat_id = category.id).all().filter_by(name = item_name).one()
-    return render_template('showItemDescription.html', item = item)
+    item = session.query(Item).filter_by(name = item_name).one()
+    if 'username' not in login_session:
+        return render_template('showItem.html', item = item)
+    else:
+        return render_template('showItemLoggedOn.html', item = item)
 
-@app.route("/<string:category_name>/new", methods=['GET','POST'])
-def newItem(category_name):
+@app.route("/newItem", methods=['GET','POST'])
+def newItem():
     if 'username' not in login_session:
         return redirect('/')
+    if request.method == 'POST':
+        cat_id = session.query(Category.id).\
+            filter(Category.name == request.form['category']).\
+            scalar()
+        user_id = login_session['user_id']
+        newItem = Item(name = request.form['name'], description = 
+                           request.form['description'], cat_id = 
+                           cat_id, cat_name = 
+                           request.form['category'],  user_id = user_id)
+        session.add(newItem)
+        session.commit()
+        flash('New Menu %s Item Successfully Created' % (newItem.name))
+        return redirect(url_for('index'))
     else:
-        pass
+        categories = session.query(Category).order_by(Category.id).all()
+        return render_template('newItem.html', categories = categories)
 
 @app.route("/<string:category_name>/<string:item_name>/edit", methods=['GET','POST'])
 def editItem(category_name, item_name):
