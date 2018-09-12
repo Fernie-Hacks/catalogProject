@@ -254,7 +254,6 @@ def showCategoryItems(category_name):
 
 @app.route("/<string:category_name>/<string:item_name>")
 def showItem(category_name, item_name):
-    category = session.query(Category).filter_by(name = category_name).one()
     item = session.query(Item).filter_by(name = item_name).one()
     if 'username' not in login_session:
         return render_template('showItem.html', item = item)
@@ -276,7 +275,7 @@ def newItem():
                            request.form['category'],  user_id = user_id)
         session.add(newItem)
         session.commit()
-        flash('New Menu %s Item Successfully Created' % (newItem.name))
+        flash('New Menu Item, %s, Successfully Created!' % (newItem.name))
         return redirect(url_for('index'))
     else:
         categories = session.query(Category).order_by(Category.id).all()

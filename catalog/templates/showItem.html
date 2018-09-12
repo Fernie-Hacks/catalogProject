@@ -17,7 +17,7 @@
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-          <a class="navbar-brand navbar-center" href="#">
+          <a class="navbar-brand navbar-center" href="/">
             <span class="label label-default">Catalog App</span>
           </a>
         </div>
@@ -31,11 +31,12 @@
 {% endblock %}
 
 	<article>
-		<div class="article-grid">
-			<div class="article-col">
-				<span id="label">{{item.name}}</span>
-			</div>		
-		</div>
-	</article>
+        <div class="article-grid">
+		    <div class="article-col">
+                <span id="label">{{item.name}}</span>
+                <p class="list"> Description: {{item.description}} </p>
+            </div>		
+        </div>
+    </article>
 	
 {% endblock %}

@@ -3,11 +3,11 @@
 {% block html_attribs %} lang="en"{% endblock %}
 
 {% block head %}
-{{super()}}
-    <meta charset="UTF-8">
-    <title>Catalog</title>
+	<title>Catalog</title>
+	<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css?family=Rajdhani" rel="stylesheet">
+{{super()}}
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='index.css') }}">
 {% endblock %}
 
@@ -17,7 +17,7 @@
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-          <a class="navbar-brand navbar-center" href="#">
+          <a class="navbar-brand navbar-center" href="/">
             <span class="label label-default">Catalog App</span>
           </a>
         </div>
