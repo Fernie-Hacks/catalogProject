@@ -276,7 +276,7 @@ def newItem():
         session.add(newItem)
         session.commit()
         flash('New Menu Item, %s, Successfully Created!' % (newItem.name))
-        return redirect(url_for('index'))
+        return redirect('/')
     else:
         categories = session.query(Category).order_by(Category.id).all()
         return render_template('newItem.html', categories = categories)
@@ -285,8 +285,12 @@ def newItem():
 def editItem(category_name, item_name):
     if 'username' not in login_session:
         return redirect('/')
+    if request.method == 'POST':
+        return redirect('/')
     else:
-        pass
+        categories = session.query(Category).order_by(Category.id).all()
+        item = session.query(Item).filter_by(name = item_name).one()
+        return render_template('editItem.html', categories=categories, item=item)
     
 @app.route("/<string:category_name>/<string:item_name>/delete", methods=['GET','POST'])
 def deleteItem(category_name, item_name):
