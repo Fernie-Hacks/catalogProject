@@ -6,12 +6,17 @@ import random, string
 # Support for sha256_crypt and sha512_crypt
 from passlib.apps import custom_app_context as pwd_context
 # Cryptographically signed message keeps user info, for token based authentication 
-from itsdangerous import(TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
+from itsdangerous import(
+    TimedJSONWebSignatureSerializer as Serializer, 
+    BadSignature, 
+    SignatureExpired
+)
 from sqlalchemy.sql.expression import exists
 
 Base = declarative_base()
 # Secret key used to serialize and decrypt password
-secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) 
+                     for x in xrange(32))
 
 class User(Base):
     __tablename__ = 'user'
@@ -22,16 +27,19 @@ class User(Base):
     email = Column(String, index=True)
     
     # Keep Password Hash in DB only avoid security issues if DB is compromised
-    # The hash is an algorithm that can map digital data of arbitrary size to digital data of fixed sized
+    # The hash is an algorithm that can map digital data 
+    # of arbitrary size to digital data of fixed sized
     password_hash = Column(String(64)) 
     
     # Converts a String to a hash
-    # Function will take user's password and convert to an arbitrary size and random character String
+    # Function will take user's password 
+    # & convert to an arbitrary size and random character String
     def hash_password(self, password):
         self.password_hash = pwd_context.hash(password)
     
     # Function takes in a String and validates password
-    # It uses passlib.app 'verify' function to cross check the password with the hash.
+    # It uses passlib.app 'verify' function 
+    # to cross check the password with the hash.
     def verify_password(self, password):
         return pwd_context.verify(password, self.password_hash)
     
@@ -69,7 +77,8 @@ class Category(Base):
     
     @property
     def serialize(self):
-        # Return Category details in a easy serialized way, to be used for JSON response.
+        # Return Category details in a easy serialized way 
+        # To be used for JSON response.
         return {
             'name'      : self.name,
             'id'        : self.id   
@@ -89,7 +98,8 @@ class Item(Base):
     
     @property
     def serialize(self):
-        # Return item's details in a easy serialized way, to be used for JSON response.
+        # Return item's details in a easy serialized way
+        # To be used for JSON response.
         return {
             'cat_id'        : self.cat_id,
             'description'   : self.description,
@@ -97,22 +107,25 @@ class Item(Base):
             'item'          : self.name
         }
     
-# Creates an engine which will use a Dialect and a Pool to interpret a specific
+# Creates an engine which will use a Dialect & a Pool to interpret a specific
 # DB's API in our case we are creating an object tailored to SQLite        
 engine = create_engine('sqlite:///catalog.db')
 
-# Metadata is a container object that keeps features that describe database(s).
-# Create_all is a function to create a new DB given the metadata that describes such DB(s)
+# Metadata is a container object that has features that describe database(s).
+# Create_all is a function to create a new DB 
+# given the metadata that describes such DB(s).
 # *** It issues CREATE statements only if tables do not already exist
 Base.metadata.create_all(engine)
 
 # Add the Categories to the DB 
-# Project specifications did not provide details on user's ability to create/edit/delete categories
+# Project specifications did not provide details on user's ability to 
+# create/edit/delete categories
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-categoryNames = ["Soccer", "Basketball", "Baseball", "Frisbee", "Snowboarding", 
-                 "Rock Climbing", "Foosball", "Skating", "Hockey" ]
+categoryNames = ["Soccer", "Basketball", "Baseball", "Frisbee", 
+                 "Snowboarding", "Rock Climbing", 
+                 "Foosball", "Skating", "Hockey" ]
 
 for c in categoryNames:
     category = Category(name=c)

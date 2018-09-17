@@ -1,5 +1,14 @@
 from models import Base, User, Category, Item
-from flask import Flask, jsonify, request, url_for, g, render_template, abort, flash, redirect
+from flask import ( 
+    Flask, 
+    jsonify, 
+    request, 
+    url_for, g, 
+    render_template, 
+    abort, 
+    flash, 
+    redirect
+)
 from flask_bootstrap import Bootstrap
 from sqlalchemy.orm import sessionmaker, joinedload
 from sqlalchemy import create_engine
@@ -7,7 +16,7 @@ from sqlalchemy import create_engine
 from flask_httpauth import HTTPBasicAuth
 
 # Renamed the import to login_session
-# This import functions as a dictionary  which can store values for the longevity
+# Imports functions as a dictionary  which can store values for the longevity
 # of a user's session. 
 from flask import session as login_session
 import json
@@ -15,19 +24,20 @@ import string, random
 import requests
 from flask import make_response
 
-# Import needed to create flow objects, and exceptions to handle the response from providers  
-from oauth2client.client import flow_from_clientsecrets # Contains OAuth parameter
-from oauth2client.client import FlowExchangeError # To Catch errors during exchanges
+# Creates flow objects, and exceptions to handle the response from providers  
+from oauth2client.client import flow_from_clientsecrets # Has OAuth parameter
+from oauth2client.client import FlowExchangeError # Catch exchange errors
 import httplib2
 
 app = Flask(__name__)
 
 auth = HTTPBasicAuth()
 
-engine = create_engine('sqlite:///catalog.db', connect_args={'check_same_thread': False})
+engine = create_engine('sqlite:///catalog.db', 
+                       connect_args={'check_same_thread': False})
 
 # Create a "bound" between the DB Table (catalog) and the engine
-# This allows SQL statements access to execute method and all other SQL constructs.
+# Allows SQL statements access to execute method and all other SQL constructs.
 Base.metadata.bind = engine
 # Create a reference to the sessionmaker class.
 DBSession = sessionmaker(bind=engine)
@@ -36,17 +46,20 @@ session = DBSession()
 Bootstrap(app)
 
 # GOOGLE OAuth Application Client ID
-CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
+CLIENT_ID = json.loads(open('client_secrets.json', 
+                            'r').read())['web']['client_id']
 
 # Function used to view Catalog App Items in JSON format
 @app.route('/catalog.json')
 def catalogJSON():
-    categories = session.query(Category).options(joinedload(Category.items)).all()
-    return jsonify(dict(Category=[dict(c.serialize, Item=[i.serialize for i in c.items]) 
-                        for c in categories]))
-    #return jsonify(dict(Category=[dict(c.serialize for c in categories), Item=[i.serialize for i in c.items])])
+    categories = session.query(Category).\
+                    options(joinedload(Category.items)).all()
+    return jsonify(dict(Category=[dict(c.serialize, 
+                                       Item=[i.serialize for i in c.items]) 
+                                            for c in categories]))
     
-# Function used every time prior to executing another function in this project which has @auth.login_required tag. 
+# Function used every time prior to executing 
+# a function in this project which has @auth.login_required tag. 
 @auth.verify_password
 def verify_password(username_or_token, password):
     user_id = User.verify_auth_token(username_or_token)
@@ -54,7 +67,8 @@ def verify_password(username_or_token, password):
     if user_id:
         user = session.query(User).filter_by(id = user_id).one()
     else: 
-        user = session.query(User).filter_by(username = username_or_token).first()
+        user = session.query(User).\
+            filter_by(username = username_or_token).first()
         if not user or not user.verify_password(password):
             return False
     g.user = user
@@ -86,13 +100,15 @@ def index():
     categories = session.query(Category).order_by(Category.id).all()
     items = session.query(Item).order_by(Item.id.desc()).limit(9).all()        
     if 'username' not in login_session:
-        return render_template('index.html', categories = categories, items = items)
+        return render_template('index.html', categories = 
+                               categories, items = items)
     else:
-        return render_template('indexLoggedOn.html', categories = categories, items = items)
+        return render_template('indexLoggedOn.html', categories = 
+                               categories, items = items)
     
 @app.route('/SignUpUser', methods=['POST'])
 def newUser():
-    # Create a new user via username / password instead of incorporating a provider
+    # Create a new user via username / password non-provider
     username = request.json.get('username')
     password = request.json.get('password')
     if username is None or password is None:
@@ -129,17 +145,20 @@ def gconnect():
     try:
         # Upgrade the authorization code into a credentials oauth object
         oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
-        # Specifies with 'postmessage' that this is the one time code my server will be sending (as per sign in div)
+        # Specifies with 'postmessage' that this is the one time code 
+        # my server will be sending (as per sign in div)
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(auth_code)
     except FlowExchangeError:
-        response = make_response(json.dumps('Failed to upgrade the authorization code'), 401)
+        response = make_response(json.\
+                    dumps('Failed to upgrade the authorization code'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
     
     # STEP 4 - Check that the access token is valid
     access_token = credentials.access_token 
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' 
+           % access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
     
@@ -150,7 +169,7 @@ def gconnect():
         return response
     
     # STEP 6 - Verify the access token is used for the intended user
-    gplus_id = credentials.id_token['sub'] # Sub is obtained from the Google resource openid 
+    gplus_id = credentials.id_token['sub'] # Obtained from Google openid 
     if result['user_id'] != gplus_id:
         response = make_response(
             json.dumps("Token's user Id doesn't match given user ID."), 401)
@@ -202,7 +221,11 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px;' \
+                'height: 300px;'\
+                'border-radius: 150px;'\
+                '-webkit-border-radius: 150px;'\
+                '-moz-border-radius: 150px;"> '
     
     flash("You are now logged in as %s" % login_session['username'])
     
@@ -214,20 +237,24 @@ def gdisconnect():
     # Only disconnect if user is already logged in.
     access_token = login_session.get('access_token')
     if access_token is None:
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(json.\
+                                 dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s'\
+            % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print result
     print result['status']
     if result['status'] == '200':
-        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response = make_response(json.\
+                                 dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(json.\
+                        dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -238,9 +265,14 @@ def fbconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     access_token = request.data
-    app_id = json.loads(open('fb_client_secrets.json', 'r').read())['web']['app_id']
-    app_secret = json.loads(open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id,app_secret,access_token)
+    app_id = json.loads(open('fb_client_secrets.json', 'r').\
+                        read())['web']['app_id']
+    app_secret = json.loads(open('fb_client_secrets.json', 'r').\
+                            read())['web']['app_secret']
+    url = ' "https://graph.facebook.com/oauth/access_token?'\
+            'grant_type=fb_exchange_token&client_id=%s&'\
+            'client_secret=%s&fb_exchange_token=%s" ' % \
+            (app_id,app_secret,access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     
@@ -249,7 +281,8 @@ def fbconnect():
     #strip expire tag from access token
     token = result.split(",")[0].split(':')[1].replace('"', '') 
     
-    url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token
+    url = ' "https://graph.facebook.com/v2.8/me?'\
+            'access_token=%s&fields=name,id,email" ' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -262,7 +295,8 @@ def fbconnect():
     login_session['access_token'] = token
     
     #Get user picture
-    url = 'https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200' % token
+    url = ' "https://graph.facebook.com/v2.8/me/picture?'\
+            'access_token=%s&redirect=0&height=200&width=200" ' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -281,7 +315,11 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px;' \
+                'height: 300px;'\
+                'border-radius: 150px;'\
+                '-webkit-border-radius: 150px;'\
+                '-moz-border-radius: 150px;"> '
     flash("You are now logged in as %s" % login_session['username'])
     return output
 
@@ -291,19 +329,23 @@ def fbdisconnect():
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
     if access_token is None:
-        response = make_response(json.dumps('Current User not connected.'), 401)
+        response = make_response(json.\
+                                 dumps('Current User not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % \
+            (facebook_id,access_token)
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     
     if result[2] == 's':
-        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response = make_response(json.\
+                                 dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(json.\
+                    dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -337,11 +379,15 @@ def showCategoryItems(category_name):
     categories = session.query(Category).order_by(Category.id).all()
     items = session.query(Item).filter_by(cat_id = category.id).all()
     if 'username' not in login_session:
-        return render_template('showCategoryItems.html', categories = categories, items 
-                           = items, category_name = category_name )
+        return render_template('showCategoryItems.html', 
+                               categories = categories, 
+                               items = items, 
+                               category_name = category_name )
     else:    
-        return render_template('showCategoryItemsLoggedOn.html', categories = categories, items 
-                           = items, category_name = category_name )
+        return render_template('showCategoryItemsLoggedOn.html', 
+                               categories = categories, 
+                               items = items, 
+                               category_name = category_name )
 
 @app.route("/<string:category_name>/<string:item_name>")
 def showItem(category_name, item_name):
@@ -376,7 +422,8 @@ def newItem():
         items = session.query(Item).filter_by(cat_id = cat_id).all()
         for item in items:
             if item.name == name:
-                flash("%s already exists for the %s category." % (name, cat_name))
+                flash("%s already exists for the %s category." % \
+                      (name, cat_name))
                 return redirect('/newItem')        
         newItem = Item(name = name, description = 
                            description, cat_id = 
@@ -390,7 +437,8 @@ def newItem():
         categories = session.query(Category).order_by(Category.id).all()
         return render_template('newItem.html', categories = categories)
 
-@app.route("/<string:category_name>/<string:item_name>/edit", methods=['GET','POST'])
+@app.route("/<string:category_name>/<string:item_name>/edit", \
+           methods=['GET','POST'])
 def editItem(category_name, item_name):
     itemToEdit = None
     for item in session.query(Item).\
@@ -410,14 +458,17 @@ def editItem(category_name, item_name):
         cat_name = request.form['category']
         if not name or not description or not cat_name:
             flash("Some of the required field(s) were left blank.")
-            return redirect(url_for('editItem', category_name = 
-                                    itemToEdit.cat_name, item_name = itemToEdit.name))
+            return redirect(url_for('editItem', 
+                                    category_name = itemToEdit.cat_name, 
+                                    item_name = itemToEdit.name))
         items = session.query(Item).filter_by(cat_id = cat_id).all()
         for i in items:
             if i.name == name and i.id != itemToEdit.id:
-                flash("%s already exists for the %s category." % (name, cat_name))
-                return redirect(url_for('editItem', category_name = 
-                                    itemToEdit.cat_name, item_name = itemToEdit.name))    
+                flash("%s already exists for the %s category." % \
+                      (name, cat_name))
+                return redirect(url_for('editItem', 
+                                        category_name = itemToEdit.cat_name, 
+                                        item_name = itemToEdit.name))    
         itemToEdit.name = name
         itemToEdit.description = description
         itemToEdit.cat_name = cat_name       
@@ -428,9 +479,12 @@ def editItem(category_name, item_name):
     else:
         categories = session.query(Category).order_by(Category.id).all()
         item = session.query(Item).filter_by(name = item_name).one()
-        return render_template('editItem.html', categories=categories, item=item)
+        return render_template('editItem.html', 
+                               categories=categories, 
+                               item=item )
     
-@app.route("/<string:category_name>/<string:item_name>/delete", methods=['GET','POST'])
+@app.route("/<string:category_name>/<string:item_name>/delete", \
+           methods=['GET','POST'])
 def deleteItem(category_name, item_name):
     itemToDelete = None
     for item in session.query(Item).\
@@ -449,10 +503,14 @@ def deleteItem(category_name, item_name):
     else:
         return render_template('deleteItem.html', item=itemToDelete)
 
-# In order to be able to distinguish this when running as the main program ex 'python views.py'
-# *** When using this method python will set __name__ to have a value of '__main__' by default
-# Or when someone import this module and uses functions form here, when using the this option
-# *** Python interpreter sets the __name__ variable to the module name instead of main  
+# In order to be able to distinguish this when running as the main program 
+# ex 'python views.py'
+# *** When using this method python will set __name__ 
+# *** to have a value of '__main__' by default
+# Or when someone import this module and uses functions form here, 
+# when using the this option
+# *** Python interpreter sets the __name__ variable 
+# *** to the module name instead of main  
 if __name__ == '__main__':
     app.secret_key = 'secret_key_for_github'
     app.debug = True
