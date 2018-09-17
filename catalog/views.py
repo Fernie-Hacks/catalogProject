@@ -261,10 +261,10 @@ def showCategoryItems(category_name):
 @app.route("/<string:category_name>/<string:item_name>")
 def showItem(category_name, item_name):
     item = None
-    for item in session.query(Item).\
+    for i in session.query(Item).\
             filter(Item.name==str(item_name)).\
             filter(Item.cat_name==str(category_name)):
-        item = item
+        item = i
     if item == None:
         return redirect('/')
     if 'username' not in login_session:
@@ -299,7 +299,7 @@ def newItem():
                            cat_name,  user_id = user_id)
         session.add(newItem)
         session.commit()
-        flash('New Category Item, %s, Successfully Created!' % (newItem.name))
+        flash('Item %s, Successfully Created!' % (newItem.name))
         return redirect('/')
     else:
         categories = session.query(Category).order_by(Category.id).all()
@@ -308,10 +308,10 @@ def newItem():
 @app.route("/<string:category_name>/<string:item_name>/edit", methods=['GET','POST'])
 def editItem(category_name, item_name):
     itemToEdit = None
-    for itemToEdit in session.query(Item).\
+    for item in session.query(Item).\
             filter(Item.name==str(item_name)).\
             filter(Item.cat_name==str(category_name)):
-        itemToEdit = itemToEdit
+        itemToEdit = item
     if itemToEdit == None:
         return redirect('/')
     if 'username' not in login_session:
@@ -338,7 +338,7 @@ def editItem(category_name, item_name):
         itemToEdit.cat_name = cat_name       
         session.add(itemToEdit)
         session.commit()
-        flash('Category Item, %s, has been updated!' % (itemToEdit.name))
+        flash('Item %s, has been updated!' % (itemToEdit.name))
         return redirect('/')
     else:
         categories = session.query(Category).order_by(Category.id).all()
@@ -347,10 +347,22 @@ def editItem(category_name, item_name):
     
 @app.route("/<string:category_name>/<string:item_name>/delete", methods=['GET','POST'])
 def deleteItem(category_name, item_name):
+    itemToDelete = None
+    for item in session.query(Item).\
+            filter(Item.name==str(item_name)).\
+            filter(Item.cat_name==str(category_name)):
+        itemToDelete = item
+    if itemToDelete == None:
+        return redirect('/')
     if 'username' not in login_session:
         return redirect('/')
+    if request.method == 'POST':
+        session.delete(itemToDelete)
+        flash('Item %s, has been Deleted!' % (itemToDelete.name))
+        session.commit()
+        return redirect('/')
     else:
-        pass
+        return render_template('deleteItem.html', item=itemToDelete)
 
 # In order to be able to distinguish this when running as the main program ex 'python views.py'
 # *** When using this method python will set __name__ to have a value of '__main__' by default

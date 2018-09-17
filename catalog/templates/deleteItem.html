@@ -22,8 +22,8 @@
           </a>
         </div>
         <div class="nav navbar-nav navbar-right " >
-        	<a href="{{url_for('disconnect')}}"> 
-        		<button type="button" class="btn btn-danger navbar-btn">Logout</button>
+        	<a href="{{url_for('showLogin')}}"> 
+        		<button type="button" class="btn btn-danger navbar-btn">Login</button>
         	</a>
         </div>
       </div><!-- /.container-fluid -->
@@ -31,20 +31,18 @@
 {% endblock %}
 
 	<article>
-		<div class="showItem-grid">
-		    <div class="showItem-col">
-                <span id="label">{{item.name}}</span>
-                <p class="list"> Description: {{item.description}} </p>
-            </div>
-            <div class="showItem-col buttons">
-            	<a href="{{url_for('editItem', category_name=item.cat_name, item_name=item.name)}}"> 
-                	<button type="button" class="btn btn-info"> Edit</button>
-                </a>
-                <a href="{{url_for('deleteItem', category_name=item.cat_name, item_name=item.name)}}"> 
-                	<button type="button" class="btn btn-danger">Delete</button>
-                </a>	
-            </div>	
+        <div class="article-grid">
+            <form action="#" method = "post" class="form-group">
+				<div class="input-group grid-format">
+                    <span id="label">Deleting {{item.name}}...</span>
+				</div>		
+				<div class="input-group grid-format">
+                     <p class="list"> Are you sure you want to delete {{item.name}}?</p>
+				</div>	
+			  <button type="submit" class="btn btn-default center-block submit">Submit</button>
+			</form>	
         </div>
-    </article>
 
+    </article>
+	
 {% endblock %}
