@@ -30,6 +30,19 @@
     </nav>
 {% endblock %}
 
+	<!-- To Get flash messages after logins/updates and other activities. -->
+	<div class = 'flash'>
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<ul>
+				{% for message in messages %}
+					<li> <strong> {{ message }} </strong> </li>
+				{% endfor %}
+        	</ul>
+     	{% endif %}
+     	{% endwith %}
+	</div>
+
 	<article>
 		<div class="newItem-grid">
 			<form action="#" method = "post" class="form-group">

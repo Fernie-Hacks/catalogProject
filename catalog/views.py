@@ -254,21 +254,34 @@ def showCategoryItems(category_name):
 
 @app.route("/<string:category_name>/<string:item_name>")
 def showItem(category_name, item_name):
-    item = session.query(Item).filter_by(name = item_name).one()
+    for item in session.query(Item).\
+            filter(Item.name==str(item_name)).\
+            filter(Item.cat_name==str(category_name)):
+        item = item
+    if item == None:
+        return redirect('/')
     if 'username' not in login_session:
         return render_template('showItem.html', item = item)
     else:
         return render_template('showItemLoggedOn.html', item = item)
+        
 
 @app.route("/newItem", methods=['GET','POST'])
 def newItem():
     if 'username' not in login_session:
         return redirect('/')
     if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
         cat_id = session.query(Category.id).\
             filter(Category.name == request.form['category']).\
             scalar()
+        cat_name = request.form['category']
         user_id = login_session['user_id']
+        if not name or not description or not cat_name:
+            flash("Some of the required field(s) were left blank.")
+            return redirect('/newItem')
+                    
         newItem = Item(name = request.form['name'], description = 
                            request.form['description'], cat_id = 
                            cat_id, cat_name = 
