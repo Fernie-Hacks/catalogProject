@@ -246,10 +246,16 @@ def disconnect():
 
 @app.route("/<string:category_name>/items")
 def showCategoryItems(category_name):
-    category = session.query(Category).filter_by(name = category_name).one()
+    category = session.query(Category).filter_by(name = category_name).first()
+    if category is None:
+        return redirect('/')
     categories = session.query(Category).order_by(Category.id).all()
     items = session.query(Item).filter_by(cat_id = category.id).all()
-    return render_template('showCategoryItems.html', categories = categories, items 
+    if 'username' not in login_session:
+        return render_template('showCategoryItems.html', categories = categories, items 
+                           = items, category_name = category_name )
+    else:    
+        return render_template('showCategoryItemsLoggedOn.html', categories = categories, items 
                            = items, category_name = category_name )
 
 @app.route("/<string:category_name>/<string:item_name>")
