@@ -22,9 +22,9 @@ Properly implementing authentication mechanisms and appropriately mapping HTTP m
 2. The Vagrant configuration program
 3. Installing VirtualBox
 4. Signup to Facebook Developer Console
-5. Create an App on Facebook abd uodate the [fb_client_secrets.json](fb_client_secrets.json)
+5. Create an App on Facebook abd uodate the [fb_client_secrets.json](catalog/fb_client_secrets.json)
 6. Sign up to Google Developer Console
-7. Create an APP on Google and update the [client_secrets.json](client_secrets.json)
+7. Create an APP on Google and update the [client_secrets.json](catalog/client_secrets.json)
 8. Update the [login.html](login.html) file with the app ids.
 
 **VirtualBox** 
