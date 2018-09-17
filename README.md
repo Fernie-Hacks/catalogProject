@@ -25,7 +25,7 @@ Properly implementing authentication mechanisms and appropriately mapping HTTP m
 5. Create an App on Facebook abd uodate the [fb_client_secrets.json](fb_client_secrets.json)
 6. Sign up to Google Developer Console
 7. Create an APP on Google and update the [client_secrets.json](client_secrets.json)
-
+8. Update the [login.html](login.html) file with the app ids.
 
 **VirtualBox** 
 VirtualBox is the software that actually runs the virtual machine. You can download it from virtualbox.org, [here](https://www.virtualbox.org/wiki/Downloads). Install the platform package for your operating system. You do not need the extension pack or the SDK. You do not need to launch VirtualBox after installing it; Vagrant will do that.
