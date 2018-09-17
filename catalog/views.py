@@ -299,7 +299,7 @@ def newItem():
                            cat_name,  user_id = user_id)
         session.add(newItem)
         session.commit()
-        flash('New Menu Item, %s, Successfully Created!' % (newItem.name))
+        flash('New Category Item, %s, Successfully Created!' % (newItem.name))
         return redirect('/')
     else:
         categories = session.query(Category).order_by(Category.id).all()
@@ -307,9 +307,38 @@ def newItem():
 
 @app.route("/<string:category_name>/<string:item_name>/edit", methods=['GET','POST'])
 def editItem(category_name, item_name):
+    itemToEdit = None
+    for itemToEdit in session.query(Item).\
+            filter(Item.name==str(item_name)).\
+            filter(Item.cat_name==str(category_name)):
+        itemToEdit = itemToEdit
+    if itemToEdit == None:
+        return redirect('/')
     if 'username' not in login_session:
         return redirect('/')
     if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        cat_id = session.query(Category.id).\
+            filter(Category.name == request.form['category']).\
+            scalar()
+        cat_name = request.form['category']
+        if not name or not description or not cat_name:
+            flash("Some of the required field(s) were left blank.")
+            return redirect(url_for('editItem', category_name = 
+                                    itemToEdit.cat_name, item_name = itemToEdit.name))
+        items = session.query(Item).filter_by(cat_id = cat_id).all()
+        for i in items:
+            if i.name == name and i.id != itemToEdit.id:
+                flash("%s already exists for the %s category." % (name, cat_name))
+                return redirect(url_for('editItem', category_name = 
+                                    itemToEdit.cat_name, item_name = itemToEdit.name))    
+        itemToEdit.name = name
+        itemToEdit.description = description
+        itemToEdit.cat_name = cat_name       
+        session.add(itemToEdit)
+        session.commit()
+        flash('Category Item, %s, has been updated!' % (itemToEdit.name))
         return redirect('/')
     else:
         categories = session.query(Category).order_by(Category.id).all()

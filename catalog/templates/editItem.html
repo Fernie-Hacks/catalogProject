@@ -30,10 +30,24 @@
     </nav>
 {% endblock %}
 
+	<!-- To Get flash messages after logins/updates and other activities. -->
+	<div class = 'flash'>
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<ul>
+				{% for message in messages %}
+					<li> <strong> {{ message }} </strong> </li>
+				{% endfor %}
+        	</ul>
+     	{% endif %}
+     	{% endwith %}
+	</div>
+
+
 	<article>
 		<div class="newItem-grid">
 			<form action="#" method = "post" class="form-group">
-				<span class="text-center" id="new-item-label">New Item</span>
+				<span class="text-center" id="new-item-label">Edit Item</span>
 				<div class="input-group grid-format">
 					<span class="input-group-addon" id="basic-addon1">Title: </span>
 				  	<input type="text" class="form-control" name="name" placeholder="{{item.name}}" aria-describedby="basic-addon1">
