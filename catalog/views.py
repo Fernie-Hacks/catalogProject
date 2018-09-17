@@ -195,11 +195,15 @@ def gconnect():
         user_id = createUser(login_session)
         
     login_session['user_id'] = user_id
-        
-    output = ''    
-    output += '<h1> Welcome, '
+    
+    output = ''
+    output += '<h1>Welcome, '
     output += login_session['username']
     output += '!</h1>'
+    output += '<img src="'
+    output += login_session['picture']
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    flash("you are now logged in as %s" % login_session['username'])
     
     flash("You are now logged in as %s" % login_session['username'])
     
@@ -217,6 +221,8 @@ def gdisconnect():
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
+    print result
+    print result['status']
     if result['status'] == '200':
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
@@ -240,7 +246,7 @@ def fbconnect():
     result = h.request(url, 'GET')[1]
     
     #Use token to get user info from API
-    userinfo_url = "https://graph.facebook.com/v2.8/me"
+    userinfo_url = "https://graph.facebook.com/v3.1/me"
     #strip expire tag from access token
     token = result.split(",")[0].split(':')[1].replace('"', '') 
     
@@ -285,10 +291,15 @@ def fbdisconnect():
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
+    if access_token is None:
+        response = make_response(json.dumps('Current User not connected.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
     url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
-    if result['status'] == '200':
+    
+    if result[2] == 's':
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -307,6 +318,7 @@ def disconnect():
         if login_session['provider'] == 'facebook':
             fbdisconnect()
             del login_session['facebook_id']
+            del login_session['access_token']
         del login_session['username']
         del login_session['email']
         del login_session['picture']
