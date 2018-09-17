@@ -254,6 +254,7 @@ def showCategoryItems(category_name):
 
 @app.route("/<string:category_name>/<string:item_name>")
 def showItem(category_name, item_name):
+    item = None
     for item in session.query(Item).\
             filter(Item.name==str(item_name)).\
             filter(Item.cat_name==str(category_name)):
@@ -281,11 +282,15 @@ def newItem():
         if not name or not description or not cat_name:
             flash("Some of the required field(s) were left blank.")
             return redirect('/newItem')
-                    
-        newItem = Item(name = request.form['name'], description = 
-                           request.form['description'], cat_id = 
+        items = session.query(Item).filter_by(cat_id = cat_id).all()
+        for item in items:
+            if item.name == name:
+                flash("%s already exists for the %s category." % (name, cat_name))
+                return redirect('/newItem')        
+        newItem = Item(name = name, description = 
+                           description, cat_id = 
                            cat_id, cat_name = 
-                           request.form['category'],  user_id = user_id)
+                           cat_name,  user_id = user_id)
         session.add(newItem)
         session.commit()
         flash('New Menu Item, %s, Successfully Created!' % (newItem.name))
