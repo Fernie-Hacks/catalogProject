@@ -45,9 +45,7 @@
 				<span id="label"> {{category_name}} Items</span>  	
 				{% for i in items %}
 					<a href="{{url_for('showItem', category_name=i.cat_name, item_name=i.name)}}">
-						<p class="list">{{i.name}} 
-							<span class="category"> ( {{i.cat_name}} )</span>
-						</p>
+						<p class="list">{{i.name}}</p>
 					</a>
 				{% endfor %}
 			</div>		

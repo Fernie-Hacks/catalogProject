@@ -58,9 +58,9 @@
 				</div>
 				<div class="input-group grid-format">
 					<span class="input-group-addon" id="basic-addon1">Category: </span>
-	  				<select class="form-control" name="category" id="sel1">
+	  				<select class="form-control" name="category" id="sel1" aria-describedby="basic-addon1">
 	  					{% for c in categories %}
-	  						<option class="cat-format">{{c.name}}</option>
+	  						<option class="cat-format" aria-describedby="basic-addon1">{{c.name}}</option>
 						{% endfor %}
 	  				</select>
 				</div>			

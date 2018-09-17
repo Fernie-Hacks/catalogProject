@@ -50,8 +50,20 @@ html body {
 }
 
 .newItem-grid {
+	display: flex;
 	margin: 5% 10% 5% 10%;
 	background-color: #FFFFFF;
+	padding: 2%;
+}
+
+.cat-format {
+	border-radius: 0;
+}
+
+.edit {
+	padding-left: 1vw;
+	padding-right: 1vw;
+	margin-right: 1vw; 
 }
 
 .showItem-grid {
@@ -61,8 +73,22 @@ html body {
 	padding: 2%;
 }
 
+.deleteItem-grid {
+	flex-direction: row;
+	margin: 5% 10% 5% 10%;
+	background-color: #FFFFFF;
+	padding: 2%;
+}
+
+.login-grid {
+	flex-direction: row;
+	margin: 5% 10% 5% 10%;
+	background-color: #FFFFFF;
+	padding: 2%;
+}
+
 .buttons {
-	margin-left: 4%;
+	margin-left: 50%;
 }
 
 .grid-format {

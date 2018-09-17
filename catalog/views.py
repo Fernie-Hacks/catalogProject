@@ -1,9 +1,8 @@
 from models import Base, User, Category, Item
 from flask import Flask, jsonify, request, url_for, g, render_template, abort, flash, redirect
 from flask_bootstrap import Bootstrap
-#from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy import create_engine, and_
+from sqlalchemy.orm import sessionmaker, joinedload
+from sqlalchemy import create_engine
 
 from flask_httpauth import HTTPBasicAuth
 
@@ -20,7 +19,6 @@ from flask import make_response
 from oauth2client.client import flow_from_clientsecrets # Contains OAuth parameter
 from oauth2client.client import FlowExchangeError # To Catch errors during exchanges
 import httplib2
-from flask.helpers import make_response
 
 app = Flask(__name__)
 
@@ -40,6 +38,13 @@ Bootstrap(app)
 # GOOGLE OAuth Application Client ID
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 
+# Function used to view Catalog App Items in JSON format
+@app.route('/catalog.json')
+def catalogJSON():
+    categories = session.query(Category).options(joinedload(Category.items)).all()
+    return jsonify(dict(Category=[dict(c.serialize, Item=[i.serialize for i in c.items]) 
+                         for c in categories]))
+    
 # Function used every time prior to executing another function in this project which has @auth.login_required tag. 
 @auth.verify_password
 def verify_password(username_or_token, password):

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy import Column, Integer, String, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 import random, string
@@ -7,8 +7,6 @@ import random, string
 from passlib.apps import custom_app_context as pwd_context
 # Cryptographically signed message keeps user info, for token based authentication 
 from itsdangerous import(TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
-from sqlalchemy.sql.schema import ForeignKey
-from sqlalchemy.orm.relationships import foreign
 from sqlalchemy.sql.expression import exists
 
 Base = declarative_base()
@@ -67,7 +65,7 @@ class Category(Base):
     __tablename__ = 'category'
    
     id = Column(Integer, primary_key=True)
-    name = Column(String(50), nullable=False, index=True, unique=True)
+    name = Column(String(50), nullable=False, index=True, unique=True)  
     
     @property
     def serialize(self):
@@ -85,7 +83,7 @@ class Item(Base):
     description = Column(String(250))
     cat_id = Column(Integer, ForeignKey('category.id'))
     cat_name = Column(String(50))
-    category = relationship(Category)
+    category = relationship(Category, backref='items')
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
     
