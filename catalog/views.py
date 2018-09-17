@@ -225,6 +225,11 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+
+def fbconnect():
+    pass
+
+
 def fbdisconnect():
     pass
 
