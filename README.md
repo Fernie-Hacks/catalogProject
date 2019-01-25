@@ -56,3 +56,14 @@ If you are now looking at a shell prompt that starts with the word vagrant ex ``
 * Postgresql 9.5.13
 * Bootstrap 3.3.7
 
+## Python imports
+```$ pip install sqlalchemy```
+```$ pip install passlib```
+```$ pip install itsdangerous```
+```$ pip install flask```
+```$ pip install flask-bootstrap```
+```$ pip install flask-httpauth```
+```$ pip install request```
+```$ pip install requests```
+```$ pip install oauth2client```
+
